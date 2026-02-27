@@ -1,0 +1,33 @@
+name: Build VST3 Plugin
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Windows VST3
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install JUCE Dependencies
+        run: |
+          git clone --depth 1 https://github.com/juce-framework/JUCE.git
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Plugin
+        run: |
+          cmake --build build --config Release --target TrapVocalPlugin_VST3
+
+      - name: Upload VST3 Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: TrapVocalPlugin-Windows
+          path: build/TrapVocalPlugin_artefacts/Release/VST3/TrapVocalPlugin.vst3
